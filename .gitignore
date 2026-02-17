@@ -1,0 +1,30 @@
+# IntelliJ / Android Studio
+.idea/
+*.iml
+
+# Gradle
+.gradle/
+build/
+
+# Local config
+local.properties
+
+# NDK / C++
+.externalNativeBuild/
+.cxx/
+
+# Logs & temp
+*.log
+*.swp
+*~
+
+# macOS
+.DS_Store
+
+# Signing
+*.jks
+*.keystore
+
+# Captures
+captures/
+
