@@ -5,17 +5,17 @@
     android:layout_height="wrap_content">
 
     <TextView
-        android:id="@+id/tvSong"
+        android:id="@+id/tvTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Song"
+        android:text="Title"
         android:textSize="16sp"
         android:textStyle="bold"/>
 
     <TextView
-        android:id="@+id/tvArtist"
+        android:id="@+id/tvSub"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Artist"
+        android:text="Sub"
         android:textSize="13sp"/>
 </LinearLayout>
