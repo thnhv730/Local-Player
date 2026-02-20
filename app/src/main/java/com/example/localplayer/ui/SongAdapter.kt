@@ -12,6 +12,12 @@ class SongAdapter(
 
     private val items = mutableListOf<Song>()
 
+    fun submit(list: List<Song>) {
+        items.clear()
+        items.addAll(list)
+        notifyDataSetChanged()
+    }
+
     class VH(val binding: ItemSongBinding) : RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {

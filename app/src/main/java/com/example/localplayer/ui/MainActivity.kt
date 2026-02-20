@@ -1,19 +1,25 @@
 package com.example.localplayer.ui
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.core.content.ContextCompat
 import androidx.media3.common.MediaItem
 import androidx.media3.session.MediaController
-import com.example.localplayer.R
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.localplayer.data.LocalMusicRepository
 import com.example.localplayer.databinding.ActivityMainBinding
+import com.example.localplayer.playback.ControllerProvider
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private var controller: MediaController? = null
+
+    private val repo by lazy { LocalMusicRepository(this) }
 
     private val adapter by lazy {
         SongAdapter { song ->
@@ -37,14 +43,50 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private val permissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (granted) initAfterPermission() else binding.tvStatus.text = "Permission denied"
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContentView(R.layout.activity_main)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        binding.rvSongs.layoutManager = LinearLayoutManager(this)
+        binding.rvSongs.adapter = adapter
+
+        requestMediaPermissionIfNeeded()
+    }
+
+    private fun requestMediaPermissionIfNeeded() {
+        val permission = if (Build.VERSION.SDK_INT >= 33)
+            Manifest.permission.READ_MEDIA_AUDIO
+        else
+            Manifest.permission.READ_EXTERNAL_STORAGE
+
+        val granted = ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
+        if (granted) {
+            initAfterPermission()
+        } else {
+            permissionLauncher.launch(permission)
         }
+    }
+
+    private fun initAfterPermission() {
+        val songs = repo.loadSongs()
+        adapter.submit(songs)
+        binding.tvStatus.text = "Loaded ${songs.size} songs"
+
+        ControllerProvider.buildControllerAsync(
+            this,
+            { c -> controller = c },
+            { t -> binding.tvStatus.text = "Controller error: ${t.message}" }
+        )
+    }
+
+    override fun onDestroy() {
+        controller?.release()
+        super.onDestroy()
     }
 }
