@@ -1,6 +1,7 @@
 package com.example.localplayer.data
 
 import android.content.ContentResolver
+import android.content.ContentUris
 import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
@@ -35,7 +36,7 @@ class LocalMusicRepository(private val context: Context) {
                 val album = cursor.getString(albumCol)
                 val duration = cursor.getLong(durCol)
 
-                val uri = Uri.withAppendedPath(collection, id.toString())
+                val uri = ContentUris.withAppendedId(collection, id)
 
                 songs += Song(
                     id = id,

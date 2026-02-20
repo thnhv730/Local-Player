@@ -80,7 +80,10 @@ class MainActivity : AppCompatActivity() {
 
         ControllerProvider.buildControllerAsync(
             this,
-            { c -> controller = c },
+            { c ->
+                controller = c
+                binding.tvStatus.text = "Ready"
+            },
             { t -> binding.tvStatus.text = "Controller error: ${t.message}" }
         )
     }
