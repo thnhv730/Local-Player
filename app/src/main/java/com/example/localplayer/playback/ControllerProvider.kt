@@ -2,22 +2,22 @@ package com.example.localplayer.playback
 
 import android.content.ComponentName
 import android.content.Context
-import androidx.media3.session.MediaController
+import androidx.media3.session.MediaBrowser
 import androidx.media3.session.SessionToken
 import com.google.common.util.concurrent.MoreExecutors
 
 object ControllerProvider {
-    fun buildControllerAsync(
+    fun buildBrowserAsync(
         context: Context,
-        onReady: (MediaController) -> Unit,
+        onReady: (MediaBrowser) -> Unit,
         onError: (Throwable) -> Unit
     ) {
         val sessionToken = SessionToken(context, ComponentName(context, PlaybackService::class.java))
-        val controllerFuture = MediaController.Builder(context, sessionToken).buildAsync()
-        controllerFuture.addListener(
+        val browserFuture = MediaBrowser.Builder(context, sessionToken).buildAsync()
+        browserFuture.addListener(
             {
                 try {
-                    onReady(controllerFuture.get())
+                    onReady(browserFuture.get())
                 } catch (t: Throwable) {
                     onError(t)
                 }

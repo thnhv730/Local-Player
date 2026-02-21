@@ -8,7 +8,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.media3.common.MediaItem
-import androidx.media3.session.MediaController
+import androidx.media3.session.MediaBrowser
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.localplayer.data.LocalMusicRepository
 import com.example.localplayer.databinding.ActivityMainBinding
@@ -17,13 +17,13 @@ import com.example.localplayer.playback.ControllerProvider
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private var controller: MediaController? = null
+    private var browser: MediaBrowser? = null
 
     private val repo by lazy { LocalMusicRepository(this) }
 
     private val adapter by lazy {
         SongAdapter { song ->
-            val c = controller ?: return@SongAdapter
+            val b = browser ?: return@SongAdapter
             val item = MediaItem.Builder()
                 .setUri(song.contentUri)
                 .setMediaId(song.id.toString())
@@ -36,9 +36,9 @@ class MainActivity : AppCompatActivity() {
                 )
                 .build()
 
-            c.setMediaItem(item)
-            c.prepare()
-            c.play()
+            b.setMediaItem(item)
+            b.prepare()
+            b.play()
             binding.tvStatus.text = "Playing: ${song.title}"
         }
     }
@@ -78,10 +78,10 @@ class MainActivity : AppCompatActivity() {
         adapter.submit(songs)
         binding.tvStatus.text = "Loaded ${songs.size} songs"
 
-        ControllerProvider.buildControllerAsync(
+        ControllerProvider.buildBrowserAsync(
             this,
-            { c ->
-                controller = c
+            { b ->
+                browser = b
                 binding.tvStatus.text = "Ready"
             },
             { t -> binding.tvStatus.text = "Controller error: ${t.message}" }
@@ -89,7 +89,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        controller?.release()
+        browser?.release()
         super.onDestroy()
     }
 }
