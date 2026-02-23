@@ -4,13 +4,20 @@ import android.content.ContentResolver
 import android.content.ContentUris
 import android.content.Context
 import android.net.Uri
+import android.os.Build
 import android.provider.MediaStore
+import android.util.Log
 
 class LocalMusicRepository(private val context: Context) {
     fun loadSongs(): List<Song> {
         val resolver: ContentResolver = context.contentResolver
 
-        val collection: Uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+        val collection: Uri =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)
+            } else {
+                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+            }
         val projection = arrayOf(
             MediaStore.Audio.Media._ID,
             MediaStore.Audio.Media.TITLE,
@@ -48,6 +55,7 @@ class LocalMusicRepository(private val context: Context) {
                 )
             }
         }
+        Log.d("LocalMusicRepository", "loadSongs() found=${songs.size}, collection=$collection")
         return songs
     }
 }
