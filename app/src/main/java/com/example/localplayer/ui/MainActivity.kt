@@ -23,7 +23,12 @@ class MainActivity : AppCompatActivity() {
 
     private val adapter by lazy {
         SongAdapter { song ->
-            val b = browser ?: return@SongAdapter
+            val b = browser
+            if (b == null) {
+                binding.tvStatus.text = "Controller not ready yet..."
+                return@SongAdapter
+            }
+
             val item = MediaItem.Builder()
                 .setUri(song.contentUri)
                 .setMediaId(song.id.toString())
@@ -76,13 +81,21 @@ class MainActivity : AppCompatActivity() {
     private fun initAfterPermission() {
         val songs = repo.loadSongs()
         adapter.submit(songs)
-        binding.tvStatus.text = "Loaded ${songs.size} songs"
+        binding.tvStatus.text = if (songs.isEmpty()) {
+            "No songs found. Push mp3 to /sdcard/Music then rescan MediaStore."
+        } else {
+            "Loaded ${songs.size} songs"
+        }
 
         ControllerProvider.buildBrowserAsync(
             this,
             { b ->
                 browser = b
-                binding.tvStatus.text = "Ready"
+                binding.tvStatus.text = if (songs.isEmpty()) {
+                    "Controller ready, but no songs in MediaStore."
+                } else {
+                    "Ready (tap a song)"
+                }
             },
             { t -> binding.tvStatus.text = "Controller error: ${t.message}" }
         )

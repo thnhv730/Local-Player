@@ -1,14 +1,21 @@
 package com.example.localplayer.playback
 
+import androidx.annotation.OptIn
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaLibraryService
 import androidx.media3.session.MediaSession
+import com.example.localplayer.data.LocalMusicRepository
+import com.example.localplayer.data.Song
 
 class PlaybackService : MediaLibraryService() {
     private lateinit var librarySession: MediaLibrarySession
 
+    private val songs: List<Song> by lazy { LocalMusicRepository(this).loadSongs() }
+
+    @OptIn(UnstableApi::class)
     override fun onCreate() {
         super.onCreate()
 
@@ -20,6 +27,7 @@ class PlaybackService : MediaLibraryService() {
                     .build(),
                 true
             )
+            .setHandleAudioBecomingNoisy(true)
             .build()
 
         librarySession = MediaLibrarySession.Builder(this, player, LibraryCallback(songs))
