@@ -6,6 +6,7 @@
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="12dp"
     android:layout_marginTop="10dp"
+    android:background="@drawable/bg_car_item"
     android:focusable="true"
     android:clickable="true"
     app:cardUseCompatPadding="true">

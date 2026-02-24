@@ -1,6 +1,7 @@
 package com.example.localplayer.ui
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -61,6 +62,10 @@ class MainActivity : AppCompatActivity() {
         }
         binding.btnNext.setOnClickListener { browser?.seekToNext() }
         binding.btnPrev.setOnClickListener { browser?.seekToPrevious() }
+
+        binding.nowPlayingBar.setOnClickListener {
+            startActivity(Intent(this, PlayerActivity::class.java))
+        }
 
         requestMediaPermissionIfNeeded()
     }
