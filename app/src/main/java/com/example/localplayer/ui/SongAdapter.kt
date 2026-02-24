@@ -10,13 +10,37 @@ class SongAdapter(
     private val onClick: (Song) -> Unit
 ) : RecyclerView.Adapter<SongAdapter.VH>() {
 
+    private val allItems = mutableListOf<Song>()
     private val items = mutableListOf<Song>()
 
     fun submit(list: List<Song>) {
+        allItems.clear()
+        allItems.addAll(list)
+
         items.clear()
         items.addAll(list)
+
         notifyDataSetChanged()
     }
+
+    fun filter(query: String) {
+        val q = query.trim().lowercase()
+        items.clear()
+        if (q.isEmpty()) {
+            items.addAll(allItems)
+        } else {
+            items.addAll(
+                allItems.filter {
+                    it.title.lowercase().contains(q) ||
+                    it.artist.lowercase().contains(q) ||
+                    it.album.lowercase().contains(q)
+                }
+            )
+        }
+        notifyDataSetChanged()
+    }
+
+    fun currentSize(): Int = items.size
 
     class VH(val binding: ItemSongBinding) : RecyclerView.ViewHolder(binding.root)
 

@@ -14,7 +14,7 @@
         android:layout_height="72dp"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
-        app:title="Local Player"
+        android:title="Local Player"
         app:titleTextAppearance="@style/TextAppearance.Material3.TitleLarge"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
