@@ -6,6 +6,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.session.MediaBrowser
+import coil.load
+import com.example.localplayer.R
 import com.example.localplayer.databinding.ActivityPlayerBinding
 import com.example.localplayer.playback.ControllerProvider
 import com.google.android.material.slider.Slider
@@ -114,11 +116,23 @@ class PlayerActivity : AppCompatActivity() {
 
     private fun updateAll(b: MediaBrowser) {
         val md = b.currentMediaItem?.mediaMetadata
+
         binding.tvTitleLarge.text = md?.title?.toString() ?: "Not playing"
         binding.tvSubLarge.text = listOfNotNull(
             md?.artist?.toString(),
             md?.albumTitle?.toString()
         ).joinToString(" • ").ifEmpty { " " }
+
+        val albumId = md?.extras?.getLong("albumId", -1L) ?: -1L
+        if (albumId > 0) {
+            binding.ivArtLarge.load(AlbumArt.uri(albumId)) {
+                placeholder(R.mipmap.ic_launcher)
+                error(R.mipmap.ic_launcher)
+                crossfade(true)
+            }
+        } else {
+            binding.ivArtLarge.setImageResource(R.mipmap.ic_launcher)
+        }
 
         binding.btnPlayPauseLarge.setImageResource(
             if (b.isPlaying) android.R.drawable.ic_media_pause

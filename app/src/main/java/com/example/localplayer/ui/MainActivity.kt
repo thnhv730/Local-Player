@@ -11,9 +11,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.session.MediaBrowser
 import androidx.recyclerview.widget.LinearLayoutManager
+import coil.load
+import com.example.localplayer.R
 import com.example.localplayer.data.LocalMusicRepository
 import com.example.localplayer.data.Song
 import com.example.localplayer.databinding.ActivityMainBinding
@@ -134,14 +137,19 @@ class MainActivity : AppCompatActivity() {
         if (cachedSongs.isEmpty()) return
 
         val mediaItems = cachedSongs.map {
+            val extras = Bundle().apply {
+                putLong("albumId", it.albumId)
+            }
+
             MediaItem.Builder()
                 .setUri(it.contentUri)
                 .setMediaId(it.id.toString())
                 .setMediaMetadata(
-                    androidx.media3.common.MediaMetadata.Builder()
+                    MediaMetadata.Builder()
                         .setTitle(it.title)
                         .setArtist(it.artist)
                         .setAlbumTitle(it.album)
+                        .setExtras(extras)
                         .build()
                 )
                 .build()
@@ -168,6 +176,17 @@ class MainActivity : AppCompatActivity() {
 
         binding.tvMiniTitle.text = title
         binding.tvMiniSub.text = sub
+
+        val albumId = md?.extras?.getLong("albumId", -1L) ?: -1L
+        if (albumId > 0) {
+            binding.ivMiniArt.load(AlbumArt.uri(albumId)) {
+                placeholder(R.mipmap.ic_launcher)
+                error(R.mipmap.ic_launcher)
+                crossfade(true)
+            }
+        } else {
+            binding.ivMiniArt.setImageResource(R.mipmap.ic_launcher)
+        }
 
         binding.btnPlayPause.setImageResource(
             if (b.isPlaying) android.R.drawable.ic_media_pause

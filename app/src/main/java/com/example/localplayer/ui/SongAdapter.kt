@@ -3,6 +3,8 @@ package com.example.localplayer.ui
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import coil.load
+import com.example.localplayer.R
 import com.example.localplayer.data.Song
 import com.example.localplayer.databinding.ItemSongBinding
 
@@ -57,6 +59,13 @@ class SongAdapter(
         val s = items[position]
         holder.binding.tvTitle.text = s.title
         holder.binding.tvSub.text = "${s.artist} - ${s.album}"
+
+        holder.binding.ivArt.load(AlbumArt.uri(s.albumId)) {
+            crossfade(true)
+            placeholder(R.mipmap.ic_launcher)
+            error(R.mipmap.ic_launcher)
+        }
+
         holder.binding.root.setOnClickListener { onClick(s) }
     }
 }
