@@ -31,6 +31,8 @@ class MainActivity : AppCompatActivity() {
 
     private var cachedSongs: List<Song> = emptyList()
 
+    private var playlistSet = false
+
     private val adapter by lazy {
         SongAdapter { song ->
             playAt(song)
@@ -87,6 +89,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun initAfterPermission() {
         cachedSongs = repo.loadSongs()
+        playlistSet = false
         adapter.submit(cachedSongs)
 
         binding.tvEmpty.visibility = if (cachedSongs.isEmpty()) View.VISIBLE else View.GONE
@@ -100,6 +103,10 @@ class MainActivity : AppCompatActivity() {
             this,
             { b ->
                 browser = b
+
+                if (cachedSongs.isNotEmpty()) {
+                    ensurePlaylist(b)
+                }
 
                 b.addListener(object : Player.Listener {
                     override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
@@ -136,31 +143,13 @@ class MainActivity : AppCompatActivity() {
         }
         if (cachedSongs.isEmpty()) return
 
-        val mediaItems = cachedSongs.map {
-            val extras = Bundle().apply {
-                putLong("albumId", it.albumId)
-            }
+        ensurePlaylist(b)
 
-            MediaItem.Builder()
-                .setUri(it.contentUri)
-                .setMediaId(it.id.toString())
-                .setMediaMetadata(
-                    MediaMetadata.Builder()
-                        .setTitle(it.title)
-                        .setArtist(it.artist)
-                        .setAlbumTitle(it.album)
-                        .setExtras(extras)
-                        .build()
-                )
-                .build()
-        }
-
-        val startIndex = cachedSongs.indexOfFirst { it.id == song.id }.let { idx ->
+        val index = cachedSongs.indexOfFirst { it.id == song.id }.let { idx ->
             if (idx >= 0) idx else 0
         }
 
-        b.setMediaItems(mediaItems, startIndex, 0L)
-        b.prepare()
+        b.seekTo(index, 0L)
         b.play()
 
         updateNowPlaying(b)
@@ -201,6 +190,39 @@ class MainActivity : AppCompatActivity() {
 
         binding.btnPrev.isEnabled = b.hasPreviousMediaItem()
         binding.btnNext.isEnabled = b.hasNextMediaItem()
+    }
+
+    private fun ensurePlaylist(b: MediaBrowser) {
+        if (cachedSongs.isEmpty()) return
+
+        if (playlistSet && b.mediaItemCount == cachedSongs.size) return
+
+        val mediaItems = buildMediaItems()
+        b.setMediaItems(mediaItems, 0, 0L)
+        b.prepare()
+        playlistSet = true
+    }
+
+    private fun buildMediaItems(): List<MediaItem> {
+        val mediaItems = cachedSongs.map {
+            val extras = Bundle().apply {
+                putLong("albumId", it.albumId)
+            }
+
+            MediaItem.Builder()
+                .setUri(it.contentUri)
+                .setMediaId(it.id.toString())
+                .setMediaMetadata(
+                    MediaMetadata.Builder()
+                        .setTitle(it.title)
+                        .setArtist(it.artist)
+                        .setAlbumTitle(it.album)
+                        .setExtras(extras)
+                        .build()
+                )
+                .build()
+        }
+        return mediaItems
     }
 
     override fun onDestroy() {
