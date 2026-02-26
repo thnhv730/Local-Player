@@ -32,6 +32,11 @@
             android:exported="false">
         </activity>
 
+        <activity
+            android:name=".ui.QueueActivity"
+            android:exported="false">
+        </activity>
+
         <service
             android:name=".playback.PlaybackService"
             android:foregroundServiceType="mediaPlayback"

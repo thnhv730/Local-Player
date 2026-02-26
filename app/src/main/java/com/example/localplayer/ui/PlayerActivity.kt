@@ -1,5 +1,6 @@
 package com.example.localplayer.ui
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -31,6 +32,16 @@ class PlayerActivity : AppCompatActivity() {
 
         binding.playerToolbar.setNavigationOnClickListener { finish() }
         binding.playerToolbar.setNavigationIcon(android.R.drawable.ic_menu_close_clear_cancel)
+
+        binding.playerToolbar.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.action_queue -> {
+                    startActivity(Intent(this, QueueActivity::class.java))
+                    true
+                }
+                else -> false
+            }
+        }
 
         binding.btnPlayPauseLarge.setOnClickListener {
             val b = browser ?: return@setOnClickListener

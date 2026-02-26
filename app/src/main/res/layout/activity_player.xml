@@ -25,6 +25,7 @@
             android:layout_height="64dp"
             android:title="Now Playing"
             app:titleTextAppearance="@style/TextAppearance.Material3.TitleLarge"
+            app:menu="@menu/menu_player"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
